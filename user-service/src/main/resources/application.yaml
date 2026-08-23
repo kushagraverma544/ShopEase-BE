@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: user-service      # user-service woh naam hai jo Eureka dashboard mein dikhega.
+
+server:
+  port: 8081      # 8081 is service ka apna HTTP port hai.
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/      # defaultZone Eureka registry ka address hai.  URL ke end mein /eureka/ aur trailing / dono rakho—Eureka client isi endpoint par registration request bhejta hai.

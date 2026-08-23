@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: eureka-server       # App ki identity; logs aur monitiring main useful.
+
+server:
+  port: 8761        # Eureka dashboard ka conventional port.
+
+eureka:
+  client:
+    register-with-eureka: false       # Eureka server khud ko register nahi karega.
+    fetch-registry: false       # server ko kisi doosre Eureka server se registered services ki list fetch nahi karni.ßß
