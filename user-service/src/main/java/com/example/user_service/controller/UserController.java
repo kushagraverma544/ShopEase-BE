@@ -36,4 +36,12 @@ public class UserController {
 	public UserDto createUser(@RequestBody UserDto userDto) {
 		return userService.createUser(userDto);
 	}
+
+	@GetMapping("/slow/{id}")
+	public UserDto getSlowUser(@PathVariable Long id) throws InterruptedException {
+
+		Thread.sleep(5000);
+
+		return userService.getUserById(id);
+	}
 }

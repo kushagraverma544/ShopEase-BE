@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDto createOrder(OrderDto orderDto) {
-        UserDto user = userClient.getUserById(orderDto.getUserId());    // Call to user-service to get user details & validate user existence.
+        UserDto user = userClient.getSlowUser(orderDto.getUserId());    // Call to user-service to get user details & validate user existence.
         Order order = new Order();
         order.setUserId(orderDto.getUserId());
         order.setProductName(orderDto.getProductName());
