@@ -8,35 +8,27 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Entity
-@Table(name = "orders")
+@Table(name = "idempotency_keys")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class Order extends Auditable {
+public class IdempotencyKey extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
-    @Column(name = "product_name", nullable = false, length = 150)
-    private String productName;
-
-    @Column(nullable = false)
-    private Integer quantity;
-
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal amount;
+    @Column(name = "idempotency_key", nullable = false, unique = true, length = 100)
+    private String idempotencyKey;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private OrderStatus status;
+    @Column(nullable = false, length = 20)
+    private IdempotencyStatus status;
+
+    @Column(name = "response_body", columnDefinition = "TEXT")
+    private String responseBody;
 }
