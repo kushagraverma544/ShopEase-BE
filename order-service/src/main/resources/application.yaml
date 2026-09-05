@@ -22,7 +22,19 @@ spring:
         config:
           user-service:
             connectTimeout: 2000    # Feign maximum roughly 2 seconds tak connection establish karne ki attempt karega.
-            readTimeout: 2000   # Connection establish hone ke baad response read karne ke liye maximum 2 seconds.
+            readTimeout: 2000   # Connection establish hone ke baad response read karne ke liye maximum 2 seconds.ˀ
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:      # Feign client ka naam "user-service" hi hona chahiye taaki ye config usse jud sake.
+        sliding-window-size: 10    # Last 10 calls ka record rakhega evaluate karne ke liye.
+        minimum-number-of-calls: 3    # Kam se kam 3 calls ho jaane ke baad hi failure/slow rate calculate karega, usse pehle circuit hamesha CLOSED rahega chahe sab calls fail ho rahi ho.
+        failure-rate-threshold: 50    # In tracked calls me se 50% ya zyada fail hui toh circuit OPEN ho jayega.
+        slow-call-duration-threshold: 2s    # 2 second se zyada time lagne wali call (chahe woh succeed hi kyun na ho) ko "slow" maana jayega.
+        slow-call-rate-threshold: 50    # In tracked calls me se 50% ya zyada "slow" nikli toh bhi circuit OPEN ho jayega.
+        wait-duration-in-open-state: 10s    # Circuit OPEN hone ke baad 10 second tak koi bhi call downstream (user-service) tak jaayegi hi nahi, seedha fallback lagega.
+        permitted-number-of-calls-in-half-open-state: 3    # 10s wait khatam hone ke baad HALF_OPEN me sirf 3 "test" calls allow karega ye check karne ke liye ki downstream theek hua ya nahi.
 
 server:
   port: 8082

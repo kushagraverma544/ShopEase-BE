@@ -7,12 +7,18 @@ import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderStatus;
 import com.example.order_service.repository.OrderRepository;
 import com.example.order_service.service.OrderService;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -30,9 +36,11 @@ public class OrderServiceImpl implements OrderService {
         return toDto(order);
     }
 
+    @CircuitBreaker(name = "user-service", fallbackMethod = "createOrderFallback")
     @Override
     public OrderDto createOrder(OrderDto orderDto) {
-        UserDto user = userClient.getSlowUser(orderDto.getUserId());    // Call to user-service to get user details & validate user existence.
+        UserDto user = userClient.getSlowUser(orderDto.getUserId()); // Call to user-service to get user details &
+                                                                     // validate user existence.
         Order order = new Order();
         order.setUserId(orderDto.getUserId());
         order.setProductName(orderDto.getProductName());
@@ -46,4 +54,10 @@ public class OrderServiceImpl implements OrderService {
         return new OrderDto(order.getId(), order.getUserId(), order.getProductName(),
                 order.getQuantity(), order.getAmount(), order.getStatus());
     }
+
+    public OrderDto createOrderFallback(OrderDto orderDto, Throwable t) {
+        log.warn("Fallback triggered for userId={}, reason={}", orderDto.getUserId(), t.getMessage());
+        throw new RuntimeException("Order service is currently unavailable, please try again later");
+    }
+
 }
