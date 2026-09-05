@@ -2,6 +2,7 @@ package com.example.user_service.service.impl;
 
 import com.example.user_service.dto.UserDto;
 import com.example.user_service.entity.User;
+import com.example.user_service.exception.ResourceNotFoundException;
 import com.example.user_service.repository.UserRepository;
 import com.example.user_service.service.UserService;
 import java.util.List;
@@ -23,7 +24,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto getUserById(Long id) {
-		User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("user.not.found", id));
 		return new UserDto(user.getId(), user.getName(), user.getEmail());
 	}
 

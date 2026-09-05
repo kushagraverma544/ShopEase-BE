@@ -35,6 +35,8 @@ resilience4j:
         slow-call-rate-threshold: 50    # In tracked calls me se 50% ya zyada "slow" nikli toh bhi circuit OPEN ho jayega.
         wait-duration-in-open-state: 10s    # Circuit OPEN hone ke baad 10 second tak koi bhi call downstream (user-service) tak jaayegi hi nahi, seedha fallback lagega.
         permitted-number-of-calls-in-half-open-state: 3    # 10s wait khatam hone ke baad HALF_OPEN me sirf 3 "test" calls allow karega ye check karne ke liye ki downstream theek hua ya nahi.
+        ignore-exceptions:
+          - com.example.order_service.exception.ResourceNotFoundException    # Business error hai (user exist nahi karta) — infra failure nahi, isliye failure-rate me count nahi hona chahiye, aur fallback bhi skip ho.
 
 server:
   port: 8082

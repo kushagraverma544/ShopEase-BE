@@ -7,6 +7,8 @@ import com.example.order_service.entity.IdempotencyKey;
 import com.example.order_service.entity.IdempotencyStatus;
 import com.example.order_service.entity.Order;
 import com.example.order_service.entity.OrderStatus;
+import com.example.order_service.exception.ConflictException;
+import com.example.order_service.exception.ResourceNotFoundException;
 import com.example.order_service.repository.OrderRepository;
 import com.example.order_service.service.IdempotencyReservation;
 import com.example.order_service.service.IdempotencyService;
@@ -16,9 +18,7 @@ import com.example.order_service.service.UserLookupService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDto getOrderById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("order.not.found", id));
         return toDto(order);
     }
 
@@ -50,8 +50,7 @@ public class OrderServiceImpl implements OrderService {
             IdempotencyKey existing = reservation.keyRecord();
             if (existing.getStatus() == IdempotencyStatus.PROCESSING) {
                 // Isi key wala ek request abhi bhi chal raha hai — naya kaam shuru mat karo.
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "A request with this Idempotency-Key is already being processed");
+                throw new ConflictException("idempotency.conflict");
             }
             // COMPLETED — pehle ka result hi wapas de do, downstream ko dobara touch mat karo.
             return idempotencyService.readStoredResponse(existing);
@@ -78,11 +77,10 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDto updateStatus(Long id, OrderStatus newStatus) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("order.not.found", id));
 
         if (!order.getStatus().canTransitionTo(newStatus)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Cannot transition order from " + order.getStatus() + " to " + newStatus);
+            throw new ConflictException("order.status.invalid.transition", order.getStatus(), newStatus);
         }
 
         order.setStatus(newStatus);

@@ -46,6 +46,11 @@ public class IdempotencyService {
         idempotencyKeyRepository.save(entry);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void releaseReservation(String key) {
+        idempotencyKeyRepository.findByIdempotencyKey(key).ifPresent(idempotencyKeyRepository::delete);
+    }
+
     public OrderDto readStoredResponse(IdempotencyKey entry) {
         try {
             return objectMapper.readValue(entry.getResponseBody(), OrderDto.class);
