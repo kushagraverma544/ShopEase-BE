@@ -4,6 +4,7 @@ import com.example.order_service.dto.CreateOrderRequest;
 import com.example.order_service.dto.OrderDto;
 import com.example.order_service.dto.UpdateOrderStatusRequest;
 import com.example.order_service.service.OrderService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,7 @@ public class OrderController {
 
     @PostMapping("/create")
     public OrderDto createOrder(@RequestHeader("Idempotency-Key") String idempotencyKey,
-            @RequestBody CreateOrderRequest request) {
+            @Valid @RequestBody CreateOrderRequest request) {
         return orderService.createOrder(idempotencyKey, request);
     }
 
