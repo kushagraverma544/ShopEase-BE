@@ -1,0 +1,7 @@
+CREATE TABLE products (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(150) NOT NULL,
+    price DECIMAL(12, 2) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    CONSTRAINT pk_products PRIMARY KEY (id)
+) ENGINE = InnoDB;
