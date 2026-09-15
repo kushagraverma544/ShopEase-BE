@@ -12,6 +12,11 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
+/**
+ * Wraps Keycloak's OpenID Connect token and logout endpoints so the rest of the application
+ * never talks to Keycloak directly — see {@link com.example.user_service.controller.AuthController}
+ * for the public entry points this backs.
+ */
 @Service
 @RequiredArgsConstructor
 public class KeycloakAuthService {
@@ -19,6 +24,16 @@ public class KeycloakAuthService {
     private final KeycloakProperties keycloakProperties;
     private final RestClient restClient = RestClient.create();
 
+    /**
+     * Exchanges a username/password for an access + refresh token via the resource-owner
+     * password-credentials grant.
+     *
+     * @param username Keycloak username (not email)
+     * @param password the user's password
+     * @return the issued tokens and their expiry
+     * @throws com.example.user_service.exception.UnauthorizedException if Keycloak rejects the
+     *         credentials
+     */
     public LoginResponse login(String username, String password) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("client_id", keycloakProperties.clientId());
@@ -43,6 +58,13 @@ public class KeycloakAuthService {
         }
     }
 
+    /**
+     * Revokes a refresh token at Keycloak, ending the session it belongs to.
+     *
+     * @param refreshToken the refresh token issued at login
+     * @throws com.example.user_service.exception.UnauthorizedException if Keycloak rejects the
+     *         token
+     */
     public void logout(String refreshToken) {
         MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
         form.add("client_id", keycloakProperties.clientId());
