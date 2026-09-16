@@ -25,6 +25,8 @@ keycloak:
   base-url: http://localhost:8080
   realm: shopEase
   client-id: shopease-app
+  admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
+  admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET}
 
 server:
   port: 8081
