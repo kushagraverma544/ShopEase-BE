@@ -43,6 +43,9 @@ public class SecurityConfig {
                         // inhe bina JWT ke internally call karta hai — protect karne se woh integration
                         // toot jaayegi. Ye ek known gap hai (aage service-to-service auth chahiye hoga).
                         .requestMatchers("/users/**").permitAll()
+                        // Seller approve/reject aur pending-list sirf ADMIN role ke liye — baaki sab
+                        // (/seller/** included) anyRequest().authenticated() se hi cover ho jaata hai.
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();

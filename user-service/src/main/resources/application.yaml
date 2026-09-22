@@ -20,6 +20,17 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8080/realms/shopEase
+  servlet:
+    multipart:
+      # Tomcat ka default 1MB hai — seller apply ke saath cancelled cheque/product image
+      # (multipart/form-data) aate hain, jo aasani se isse bade ho sakte hain.
+      max-file-size: 10MB
+      max-request-size: 20MB
+  cloud:
+    openfeign:
+      httpclient:
+        hc5:
+          enabled: true
 
 keycloak:
   base-url: http://localhost:8080

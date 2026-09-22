@@ -39,6 +39,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(ConflictException e, HttpServletRequest request) {
+        String message = messageSource.getMessage(e.getMessageKey(), e.getArgs(), e.getMessageKey(),
+                LocaleContextHolder.getLocale());
+        ErrorResponse body = new ErrorResponse(LocalDateTime.now(), HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(), message, request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
     // @Valid @RequestBody fail hone pe ye exception aati hai — sab field errors ko ek message me jod ke
     // 400 return karte hain, taaki missing fields (blank username/password) 500 na bane.
     @ExceptionHandler(MethodArgumentNotValidException.class)

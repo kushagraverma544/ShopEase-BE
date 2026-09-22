@@ -4,6 +4,7 @@ import com.example.inventory_service.dto.internal.CreateProductRequest;
 import com.example.inventory_service.dto.internal.ProductResponse;
 import com.example.inventory_service.entity.Product;
 import com.example.inventory_service.repository.ProductRepository;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -55,10 +56,15 @@ public class InternalProductService {
     }
 
     private ProductResponse toResponse(Product product) {
+        // "tags" ek lazy @ElementCollection hai — findById() se load hui entity ke liye abhi tak
+        // fetch nahi hui hoti. open-in-view=false hone ki wajah se Hibernate session response
+        // serialize hone tak zinda nahi rehta, isliye yahan (transaction ke andar hi) eagerly copy
+        // karna zaroori hai — warna JSON likhte waqt LazyInitializationException aati hai.
+        var tags = product.getTags() == null ? null : new ArrayList<>(product.getTags());
         return new ProductResponse(product.getId(), product.getSellerId(), product.getName(), product.getBrand(),
                 product.getCategory(), product.getDescription(), product.getPrice(),
                 product.getDiscountPercentage(), product.getStock(), product.getMinimumOrderQuantity(),
-                product.getSku(), product.getTags(), product.getWeight(), product.getWidth(), product.getHeight(),
+                product.getSku(), tags, product.getWeight(), product.getWidth(), product.getHeight(),
                 product.getDepth(), product.getWarrantyInformation(), product.getShippingInformation(),
                 product.getReturnPolicy(), product.isActive());
     }
